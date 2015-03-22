@@ -8,4 +8,5 @@
     <string name="view_photos">View photos</string>
     <string name="view_timelapse">View timelapse</string>
     <string name="take_photo">Take photo</string>
+    <string name="today_photo">Today\'s photo</string>
 </resources>

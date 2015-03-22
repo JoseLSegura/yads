@@ -1,120 +1,136 @@
 package yads.vigilando.org.yetanotherdailyselfie;
 
+import android.app.ActionBar;
 import android.app.Activity;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.Toast;
 
 
-public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity extends Activity {
 
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private DrawerRowAdapter mDrawerAdapter;
+    private ActionBarDrawerToggle mDrawerToggle;
 
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
-    private CharSequence mTitle;
+    /* Variables used for restore the application status when re-creating the activity */
+    private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
+    private int mCurrentSelectedPosition = 0;
+
+    /* For take picture logic */
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.navigation_drawer);
 
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+        mDrawerAdapter = new DrawerRowAdapter(this);
+        setupNavDrawerItems();
+        mDrawerList.setAdapter(mDrawerAdapter);
+        mDrawerList.setItemChecked(mCurrentSelectedPosition, true);
+
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        });
+
+        if (savedInstanceState != null) {
+            mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
+        }
+
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+        }
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+
+            public void onDrawerClosed(View view) {
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
-    @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
+    private void setupNavDrawerItems() {
+        mDrawerAdapter.add(new DrawerRow(android.R.drawable.ic_menu_camera,
+                getString(R.string.today_photo)));
+        mDrawerAdapter.add(new DrawerRow(android.R.drawable.ic_menu_gallery,
+                getString(R.string.view_photos)));
+        mDrawerAdapter.add(new DrawerRow(R.drawable.ic_action,
+                getString(R.string.view_timelapse)));
+        mDrawerAdapter.add(new DrawerRow(android.R.drawable.ic_menu_preferences,
+                getString(R.string.settings)));
     }
-
-    public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
-            restoreActionBar();
-            return true;
-        }
+        getMenuInflater().inflate(R.menu.main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+        menu.findItem(R.id.take_photo).setVisible(!drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        if (item.getItemId() == R.id.take_photo) {
+            Toast.makeText(this, "We are going to take a photo", Toast.LENGTH_SHORT).show();
+            dispatchTakePictureIntent();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_main, container, false);
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            // mImageView.setImageBitmap(imageBitmap);
+            /* TODO:
+            * 1.- Load the today's picture fragment
+            * 2.- Update the selected drawer item
+            * 3.- put the bitmap into the fragment's ImageView            *
+            * */
+        }
+    }
 }
