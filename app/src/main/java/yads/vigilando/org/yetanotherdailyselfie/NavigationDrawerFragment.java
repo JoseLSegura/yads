@@ -1,5 +1,8 @@
 package yads.vigilando.org.yetanotherdailyselfie;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
@@ -18,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,6 +31,8 @@ import android.widget.Toast;
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
 public class NavigationDrawerFragment extends Fragment {
+
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
 
     /**
      * Remember the position of the selected item.
@@ -49,6 +55,7 @@ public class NavigationDrawerFragment extends Fragment {
      */
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private ImageView mImageView;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerListView;
     private DrawerRowAdapter mDrawerAdapter;
@@ -187,6 +194,7 @@ public class NavigationDrawerFragment extends Fragment {
         });
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mImageView = (ImageView) getActivity().findViewById(R.id.imageView);
     }
 
     private void selectItem(int position) {
@@ -248,7 +256,9 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         if (item.getItemId() == R.id.take_photo) {
-            Toast.makeText(getActivity(), "We are going to take a photo", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "We are going to take a photo", Toast.LENGTH_SHORT).
+                    show();
+            dispatchTakePictureIntent();
             return true;
         }
 
@@ -278,5 +288,21 @@ public class NavigationDrawerFragment extends Fragment {
          * Called when an item in the navigation drawer is selected.
          */
         void onNavigationDrawerItemSelected(int position);
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            mImageView.setImageBitmap(imageBitmap);
+        }
     }
 }
