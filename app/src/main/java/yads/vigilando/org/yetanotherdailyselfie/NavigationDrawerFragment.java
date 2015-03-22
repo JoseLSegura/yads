@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -52,6 +51,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerListView;
+    private DrawerRowAdapter mDrawerAdapter;
     private View mFragmentContainerView;
 
     private int mCurrentSelectedPosition = 0;
@@ -97,15 +97,16 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
-        mDrawerListView.setAdapter(new ArrayAdapter<String>(
-                getActionBar().getThemedContext(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                new String[] {
-                        getString(R.string.view_photos),
-                        getString(R.string.view_timelapse),
-                        getString(R.string.settings)
-                }));
+
+        mDrawerAdapter = new DrawerRowAdapter(getActivity());
+        mDrawerAdapter.add(new DrawerRow(android.R.drawable.ic_menu_gallery,
+                getString(R.string.view_photos)));
+        mDrawerAdapter.add(new DrawerRow(R.drawable.ic_action,
+                getString(R.string.view_timelapse)));
+        mDrawerAdapter.add(new DrawerRow(android.R.drawable.ic_menu_preferences,
+                getString(R.string.settings)));
+
+        mDrawerListView.setAdapter(mDrawerAdapter);
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
     }
@@ -235,7 +236,6 @@ public class NavigationDrawerFragment extends Fragment {
         // If the drawer is open, show the global app actions in the action bar. See also
         // showGlobalContextActionBar, which controls the top-left area of the action bar.
         if (mDrawerLayout != null && isDrawerOpen()) {
-            inflater.inflate(R.menu.global, menu);
             showGlobalContextActionBar();
         }
         super.onCreateOptionsMenu(menu, inflater);
