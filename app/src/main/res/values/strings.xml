@@ -9,4 +9,7 @@
     <string name="view_timelapse">View timelapse</string>
     <string name="take_photo">Take photo</string>
     <string name="today_photo">Today\'s photo</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

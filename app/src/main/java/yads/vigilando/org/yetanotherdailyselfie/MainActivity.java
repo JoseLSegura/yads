@@ -2,6 +2,8 @@ package yads.vigilando.org.yetanotherdailyselfie;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
@@ -46,7 +48,7 @@ public class MainActivity extends Activity {
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                selectItem(position);
             }
         });
 
@@ -124,13 +126,53 @@ public class MainActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            // Bitmap imageBitmap = (Bitmap) extras.get("data");
             // mImageView.setImageBitmap(imageBitmap);
             /* TODO:
             * 1.- Load the today's picture fragment
             * 2.- Update the selected drawer item
             * 3.- put the bitmap into the fragment's ImageView            *
             * */
+
+            Fragment fragment = new TodayPhotoFragment();
+            fragment.setArguments(extras);
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.container, fragment).commit();
+         }
+    }
+    private void selectItem(int position) {
+        Fragment fragment = null;
+
+        switch(position) {
+            case 0:
+                fragment = new TodayPhotoFragment();
+                break;
+
+            case 1:
+                Toast.makeText(this, "Position 1", Toast.LENGTH_LONG).show();
+                break;
+
+            case 2:
+                Toast.makeText(this, "Position 2", Toast.LENGTH_LONG).show();
+                break;
+
+            case 3:
+                Toast.makeText(this, "Position 3", Toast.LENGTH_LONG).show();
+                break;
+
+            default:
+                Toast.makeText(this, "Position " + position, Toast.LENGTH_LONG).show();
+                break;
         }
+
+        mDrawerList.setItemChecked(position, true);
+        mDrawerLayout.closeDrawer(mDrawerList);
+
+        if (fragment == null) return;
+
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.container, fragment).commit();
+
+
     }
 }
