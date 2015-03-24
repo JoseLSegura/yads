@@ -107,7 +107,6 @@ public class MainActivity extends Activity {
         }
 
         if (item.getItemId() == R.id.take_photo) {
-            Toast.makeText(this, "We are going to take a photo", Toast.LENGTH_SHORT).show();
             dispatchTakePictureIntent();
             return true;
         }
@@ -149,7 +148,7 @@ public class MainActivity extends Activity {
                 break;
 
             case 1:
-                Toast.makeText(this, "Position 1", Toast.LENGTH_LONG).show();
+                fragment = new GalleryFragment();
                 break;
 
             case 2:

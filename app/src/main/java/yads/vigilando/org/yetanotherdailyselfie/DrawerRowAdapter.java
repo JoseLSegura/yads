@@ -12,13 +12,11 @@ import java.util.ArrayList;
 
 public class DrawerRowAdapter extends BaseAdapter {
 
-	private ArrayList<DrawerRow> list = new ArrayList<DrawerRow>();
-	private static LayoutInflater inflater = null;
+	private ArrayList<DrawerRow> list = new ArrayList<>();
 	private Context mContext;
 
 	public DrawerRowAdapter(Context context) {
 		mContext = context;
-		inflater = LayoutInflater.from(mContext);
 	}
 
 	public int getCount() {
@@ -42,7 +40,7 @@ public class DrawerRowAdapter extends BaseAdapter {
 
 		if (null == convertView) {
 			holder = new ViewHolder();
-			newView = inflater
+			newView = LayoutInflater.from(mContext)
 					.inflate(R.layout.drawer_row, parent, false);
 			holder.icon = (ImageView) newView.findViewById(R.id.rowIcon);
 			holder.title = (TextView) newView.findViewById(R.id.rowTitle);
